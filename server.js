@@ -26,7 +26,7 @@ app.get('/api/sound', async (req, res) => {
 //     res.status(500).json({ message: 'Server error' });
 //   }
 try {
-    const tag = 'experimental';
+    const tag = 'creepy';
 
     // Fetch a list of sounds for the specified tag
     const apiUrl = `https://freesound.org/apiv2/search/text/?query=${tag}&token=${process.env.API_KEY}`;
