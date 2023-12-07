@@ -1,33 +1,57 @@
-// Load environment variables from .env file
+import express from 'express';
+import fetch from 'node-fetch';
 import dotenv from 'dotenv';
+
+// allows to get api key from private env
 dotenv.config();
 
-// Access the API key using the process.env object
-const apiKey = process.env.API_KEY;
-
-// Import the node-fetch package
-import fetch from 'node-fetch';
-
-// Import the express and cors packages
-import express from 'express';
-import cors from 'cors';
-
 const app = express();
+const port = 3000;
 
-// Use cors middleware
-app.use(cors());
+app.use(express.static('public'));
 
-// Set up a route that the client can request
-app.get('/api', async (req, res) => {
-    try {
-        const response = await fetch(`https://freesound.org/apiv2/search/text/?query=cars&token=${apiKey}`);
-        const data = await response.json();
-        res.json(data);
-    } catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
-    }
+app.get('/api/sound', async (req, res) => {
+//   try {
+//     const tag = 'creepy';
+//     // const soundId = 110011;
+//     var randomID = Math.floor(Math.random() * 999999); // generates a random sound id from 0 to 999998
+//     const apiUrl = `https://freesound.org/apiv2/sounds/${randomID}/?token=${process.env.API_KEY}&filter=tag:${tag}`;
+
+//     const response = await fetch(apiUrl);
+//     const data = await response.json();
+
+//     res.json(data);
+//   } catch (err) {
+//     console.error(err);
+//     res.status(500).json({ message: 'Server error' });
+//   }
+try {
+    const tag = 'experimental';
+
+    // Fetch a list of sounds for the specified tag
+    const apiUrl = `https://freesound.org/apiv2/search/text/?query=${tag}&token=${process.env.API_KEY}`;
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+
+    // Extract sound IDs from the result
+    const soundIds = data.results.map(sound => sound.id);
+
+    // Choose a random sound ID from the list
+    const randomSoundId = soundIds[Math.floor(Math.random() * soundIds.length)];
+
+    // Fetch the details of the randomly chosen sound
+    const randomSoundUrl = `https://freesound.org/apiv2/sounds/${randomSoundId}/?token=${process.env.API_KEY}`;
+    const randomSoundResponse = await fetch(randomSoundUrl);
+    const randomSoundData = await randomSoundResponse.json();
+
+    res.json(randomSoundData);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
+// });
 
-// Start the server
-app.listen(3000, () => console.log('Server started'));
+app.listen(port, () => {
+  console.log(`Server is running at http://localhost:${port}`);
+});
